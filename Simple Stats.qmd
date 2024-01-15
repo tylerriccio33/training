@@ -1,0 +1,297 @@
+---
+title: "Simple Stats"
+format: html
+editor: visual
+author: "Tyler Riccio"
+editor_options: 
+  chunk_output_type: console
+---
+
+## How to Code in R
+
+Object
+
+:   Some complex but structured "thing" that holds some information, like data.
+
+Function
+
+:   Code that takes some input, does some things and returns some output. For example, $y=mx+b$ takes an input `x` and returns some output `y`. In R, that's written as `function(x) m*x + b`. You'll learn to understand functions more by using them.
+
+Variable (programming)
+
+:   A variable is used to hold some information you'll need later. It's done using the `<-` operator.
+
+Piping
+
+:   The pipe is the reason people use R, it allows you to chain together operations using `%>%`. Simply, it takes something on the left hand side of the pipe and forwards it to the right hand side. It's a subtle concept that you'll never really appreciate until you have to use another language.
+
+## Loading Dependencies
+
+In the beginning of each script, you'll have to load dependencies. Dependencies can be libraries or data. **Libraries** are pre-built functions that someone else already wrote, they're the building blocks of the R world.
+
+For most scripts, you'll load the `tidyverse` which is a *very* common collection of packages that is integral to many operations. `gt` and `gtExtras` are for creating nice tables. `nflreadr` is for querying NFL data.
+
+```{r}
+#| echo: false
+library(tidyverse)
+library(gt)
+library(gtExtras)
+library(nflreadr)
+```
+
+## Data
+
+Data is should follow certain conventions to make it consistent and effective. First, each variable should get a column and each observation should get a row. For example, if you want a table of games, each row should be a game and each column should be a detail about the game. Under no circumstances should a game have two rows.
+
+In R, data is loaded into memory as a variable in the global "environment". This means the data can be accessed in the script. The typical data structure is a data frame, in both R and Python. This structure is like a regular excel sheet, an object with columns and rows.
+
+For most things, we'll use the `tibble` function instead of the `data.frame` function. Since the reasons behind this are complicated, don't worry about why, just know it's much better.
+
+```{r}
+tibble(
+  game_id = seq(5),
+  team_epa = rnorm(5)
+)
+```
+
+### Loading Data
+
+Data is loaded by calling some function and assigning the results to some variable.
+
+```{r}
+#| output: FALSE
+raw_ngs_data <- load_nextgen_stats(seasons = 2023, stat_type = 'receiving')
+```
+
+Now you can check your data by typing the variable into the console. The below will give you a quick preview of what the data looks like, truncating if need be.
+
+```{r}
+raw_ngs_data
+```
+
+You can check your column names by doing this.
+
+```{r}
+colnames(raw_ngs_data)
+```
+
+## Filtering and Aggregating Data
+
+Once you have the data, you'll need to check if it's already aggregated by the unit of measurement you want. In this case, it's done on a weekly bases, so each row is a week.
+
+::: callout-note
+## NGS data is a very rare case of 2 units of aggregation, seasonal and weekly in the same dataset. It's hard to stress how unusual this is and I only know this because I've read the data dictionary. Seasonal aggregation is indicated by week 0, so I'm removing it.
+:::
+
+```{r}
+
+clean_ngs_data <- filter(raw_ngs_data, week != 0)
+
+n_distinct(clean_ngs_data$week) # how many distinct weeks are in the data?
+
+```
+
+Once the data is clean, you can aggregate it by each player.
+
+```{r}
+
+# Take the data and forward it using the pipe
+agg_data <- clean_ngs_data %>%
+  # Take the data forwarded and group by the name
+  group_by(player_display_name) %>%   
+  # take the grouped data and take the average of the `avg_separation` column
+  # you can add other summary stats here too like `avg_cushion`
+  summarize(avg_separation = median(avg_separation),
+            n = n(), # This just counts the number of observations (weeks) per group (player)
+            avg_cushion = median(avg_cushion)) %>% 
+  # ungroup the data
+  ungroup()
+  
+agg_data
+```
+
+Once you have this aggregated data you can sort using the `arrange` function.
+
+```{r}
+# take the data and pipe it to the arrange function
+agg_data <- agg_data %>%
+  # pass the column to the arrange function
+  # use the `-` to make it descending (highest number first)
+  arrange(-avg_separation)
+
+agg_data
+```
+
+As you can see, there are some very high average separation numbers for some random players. This is because there are only a few weeks of logged data for the player. This is why I put the `n` column in `summarize()`. This is a very common problem and it's reasonable to set some limit like 10 games or so.
+
+```{r}
+# Take the agg data and pipe it to filter
+filtered_agg_data <- agg_data %>%
+  filter(n > 10)
+
+filtered_agg_data
+```
+
+## Visualizing Results
+
+Once you have your data, you can actually do something with it by visualizing the results. This is made very easy by the `gt` package, which builds tables from data.
+
+```{r}
+
+filtered_agg_data %>%
+  # slice to the top 15 players only for ease of use
+  slice_head(n = 15) %>%
+  # pipe the data to the gt() function
+  gt() %>%
+  # take the table and hide some columns you don't really care about
+  cols_hide(columns = c(n, avg_cushion)) %>%
+  # format the average separation to remove some decimals
+  fmt_number(columns = avg_separation, decimals = 2) %>%
+  # add a little title
+  tab_header(title = "Top Separators this Season", 
+             subtitle = "The top 15 players by average separation.")  %>%
+  # add a little color
+  gt_hulk_col_numeric(columns = avg_separation) %>%
+  # theme our table like pff does
+  gt_theme_pff()
+
+```
+
+## Deeper Analysis
+
+Many times a single statistic is misleading. Separation is heavily influenced by cushion, since the higher the cushion, the more a player may be able to separation, since they can close space with more freedom. To check this interaction, it's useful to plot the two variables against each other.
+
+This part is a little more advanced but it's an integral part to digging into stats past the initial value. Later we can weight and actually account for any interaction ourselves, by creating a new stat.
+
+::: callout-note
+## You may notice the use of the \`+\` instead of the \`%\>%\` pipe. This is because ggplot functions we use require the \`+\`. This is the only package that's like this because it was written before the traditional pipe.
+:::
+
+```{r}
+
+# take the data and pipe it to ggplot, which is a plotting function
+filtered_agg_data  %>%
+  # avg_cushion as x, separation as y and the name as the label
+  ggplot(aes(x = avg_cushion,
+             y = avg_separation)) +
+  # point plot
+  geom_point() + 
+  # draw a little line
+  geom_smooth(method = 'lm',
+              formula = 'y ~ x', 
+              se = F) +
+  ggrepel::geom_text_repel(mapping = aes(label = player_display_name), 
+                           max.overlaps = 10) +
+  # add some theming and titles
+  ggthemes::theme_fivethirtyeight() +
+  labs(title = "Expected Separation by Cushion", 
+       subtitle = "Using the cushion given, we can predict some portion of the separation. In math terms, cushion is responsible for some significant variance in the separation.") +
+  # don't worry about this line
+  theme(axis.title.x = element_text(),
+        axis.title.y = element_text()) +
+  # add your axis labels
+  xlab("Cushion Given") +
+  ylab("Separation")
+
+```
+
+You can measure this relationship mathematically by taking the correlation. The result is .41, which means 41% of the average separation is *likely* (big assumption) relating to the cushion in one way or another, called variance. This number is high, especially for two essentially independent stats.
+
+```{r}
+
+cor(x = filtered_agg_data$avg_separation, y = filtered_agg_data$avg_cushion)
+
+```
+
+## Machine Learning!
+
+So we know the statistic of separation is helpful but still influenced a lot by some other factor like cushion. The question is what to do about it. There are a ton of approaches you can take here but I tend to like the machine learning approach.
+
+This approach is defined by defining some simple model to predict the separation using the cushion. Once we have this predicted value, we calculated the separation **over** this prediction. So, for players like Drake London who have receive a good deal of cushion but low separation, we would say he has separation *under* expectation. Logically, a receiver who generates separation above expected will be the better one, since they're (on average) being covered more closely.
+
+### The Code
+
+This part is obviously more advanced but I'll try to do it in the most simplistic way, eventually it'll be second nature.
+
+```{r}
+# define the model
+# prediction separation using cushion
+mod <- lm(formula = avg_separation ~ avg_cushion, data = filtered_agg_data)
+```
+
+Use the model to predict the `x_separation` column, or predicted separation. Don't worry about much of this code, since it's a little involved. Just know it's appending the predicted separation to the data.
+
+```{r}
+# augment our data
+aug_data <- predict(object = mod, new_data = filtered_agg_data) %>%
+  as_tibble_col("x_separation") %>%
+  bind_cols(filtered_agg_data)
+aug_data
+```
+
+Now we'll compute the new column that measures the separation over the expected.
+
+```{r}
+aug_data <- aug_data %>%
+  # use mutate to create the new column
+  mutate(separation_oe = avg_separation - x_separation)
+```
+
+## Visualizing Results
+
+Now we can create a new table, just like the old one that measures this.
+
+```{r}
+aug_data %>%
+  # slice to the top 15 players only for ease of use
+  slice_max(order_by = separation_oe, n = 15) %>%
+  # pipe the data to the gt() function
+  gt() %>%
+  # take the table and hide some columns you don't really care about
+  cols_hide(columns = c(n, avg_cushion)) %>%
+  # format the average separation to remove some decimals
+  fmt_number(columns = avg_separation, decimals = 2) %>%
+  # add a little title
+  tab_header(title = "Top Separators over Expected",
+             subtitle = "Separation adjusting for variance due to cushion.")  %>%
+  # add a little color
+  gt_hulk_col_numeric(columns = c(avg_separation, separation_oe)) %>%
+  # theme our table like pff does
+  gt_theme_pff() 
+```
+
+Let's plot the new adjusted separation by raw separation to see the biggest movement.
+
+```{r}
+# take the data and pipe it to ggplot, which is a plotting function
+aug_data  %>%
+  # avg_cushion as x, separation as y and the name as the label
+  ggplot(aes(x = x_separation,
+             y = avg_separation)) +
+  # point plot
+  geom_point() + 
+  # draw a little line
+  geom_smooth(method = 'lm',
+              formula = 'y ~ x', 
+              se = F) +
+  ggrepel::geom_text_repel(mapping = aes(label = player_display_name), 
+                           max.overlaps = 10) +
+  # add some theming and titles
+  ggthemes::theme_fivethirtyeight() +
+  # don't worry about this line
+  theme(axis.title.x = element_text(),
+        axis.title.y = element_text()) +
+  # add your axis labels
+  xlab("Expected Separation") +
+  ylab("Separation")
+
+```
+
+## What Next
+
+This was a very simple example in walking through how to get the stat, compute and aggregate, visualize then do more in depth analysis by creating a new adjusted stat. There are some obvious issues with this stat and it's obviously not intended to be the be all end all.
+
+-   Only 2023 data - a model needs **much** more data.
+-   Low quality stat - separation and cushion is pre-aggregated, which makes it a lower quality.
+-   Biased model - this is a more advanced concept but the model simply has low ability.xs
+-   Additional features - the model clearly needs more information to make a prediction.

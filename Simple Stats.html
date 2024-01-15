@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Tyler Riccio">
+
+<title>Simple Stats</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Simple Stats_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Simple Stats_files/libs/quarto-html/quarto.js"></script>
+<script src="Simple Stats_files/libs/quarto-html/popper.min.js"></script>
+<script src="Simple Stats_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Simple Stats_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Simple Stats_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Simple Stats_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Simple Stats_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Simple Stats_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Simple Stats_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Simple Stats</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Tyler Riccio </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="how-to-code-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-code-in-r">How to Code in R</h2>
+<dl>
+<dt>Object</dt>
+<dd>
+<p>Some complex but structured “thing” that holds some information, like data.</p>
+</dd>
+<dt>Function</dt>
+<dd>
+<p>Code that takes some input, does some things and returns some output. For example, <span class="math inline">\(y=mx+b\)</span> takes an input <code>x</code> and returns some output <code>y</code>. In R, that’s written as <code>function(x) m*x + b</code>. You’ll learn to understand functions more by using them.</p>
+</dd>
+<dt>Variable (programming)</dt>
+<dd>
+<p>A variable is used to hold some information you’ll need later. It’s done using the <code>&lt;-</code> operator.</p>
+</dd>
+<dt>Piping</dt>
+<dd>
+<p>The pipe is the reason people use R, it allows you to chain together operations using <code>%&gt;%</code>. Simply, it takes something on the left hand side of the pipe and forwards it to the right hand side. It’s a subtle concept that you’ll never really appreciate until you have to use another language.</p>
+</dd>
+</dl>
+</section>
+<section id="loading-dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="loading-dependencies">Loading Dependencies</h2>
+<p>In the beginning of each script, you’ll have to load dependencies. Dependencies can be libraries or data. <strong>Libraries</strong> are pre-built functions that someone else already wrote, they’re the building blocks of the R world.</p>
+<p>For most scripts, you’ll load the <code>tidyverse</code> which is a <em>very</em> common collection of packages that is integral to many operations. <code>gt</code> and <code>gtExtras</code> are for creating nice tables. <code>nflreadr</code> is for querying NFL data.</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.3     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.0
+✔ ggplot2   3.4.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+✔ purrr     1.0.1     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the ]8;;http://conflicted.r-lib.org/conflicted package]8;; to force all conflicts to become errors</code></pre>
+</div>
+</div>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
+<p>Data is should follow certain conventions to make it consistent and effective. First, each variable should get a column and each observation should get a row. For example, if you want a table of games, each row should be a game and each column should be a detail about the game. Under no circumstances should a game have two rows.</p>
+<p>In R, data is loaded into memory as a variable in the global “environment”. This means the data can be accessed in the script. The typical data structure is a data frame, in both R and Python. This structure is like a regular excel sheet, an object with columns and rows.</p>
+<p>For most things, we’ll use the <code>tibble</code> function instead of the <code>data.frame</code> function. Since the reasons behind this are complicated, don’t worry about why, just know it’s much better.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">game_id =</span> <span class="fu">seq</span>(<span class="dv">5</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">team_epa =</span> <span class="fu">rnorm</span>(<span class="dv">5</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  game_id team_epa
+    &lt;int&gt;    &lt;dbl&gt;
+1       1  -0.552 
+2       2   2.63  
+3       3   0.518 
+4       4  -0.957 
+5       5  -0.0573</code></pre>
+</div>
+</div>
+<section id="loading-data" class="level3">
+<h3 class="anchored" data-anchor-id="loading-data">Loading Data</h3>
+<p>Data is loaded by calling some function and assigning the results to some variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>raw_ngs_data <span class="ot">&lt;-</span> <span class="fu">load_nextgen_stats</span>(<span class="at">seasons =</span> <span class="dv">2023</span>, <span class="at">stat_type =</span> <span class="st">'receiving'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now you can check your data by typing the variable into the console. The below will give you a quick preview of what the data looks like, truncating if need be.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>raw_ngs_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── nflverse Next Gen Stats weekly receiving data ───────────────────────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Data updated: 2024-01-14 02:15:00 EST</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,420 × 23
+   season season_type  week player_display_name player_position team_abbr
+    &lt;int&gt; &lt;chr&gt;       &lt;int&gt; &lt;chr&gt;               &lt;chr&gt;           &lt;chr&gt;    
+ 1   2023 REG             0 Zay Flowers         WR              BAL      
+ 2   2023 REG             0 Jakobi Meyers       WR              LV       
+ 3   2023 REG             0 Rondale Moore       WR              ARI      
+ 4   2023 REG             0 Jerry Jeudy         WR              DEN      
+ 5   2023 REG             0 Dontayvion Wicks    WR              GB       
+ 6   2023 REG             0 Elijah Moore        WR              CLE      
+ 7   2023 REG             0 Kendrick Bourne     WR              NE       
+ 8   2023 REG             0 Jahan Dotson        WR              WAS      
+ 9   2023 REG             0 Cooper Kupp         WR              LAR      
+10   2023 REG             0 Robert Woods        WR              HOU      
+# ℹ 1,410 more rows
+# ℹ 17 more variables: avg_cushion &lt;dbl&gt;, avg_separation &lt;dbl&gt;,
+#   avg_intended_air_yards &lt;dbl&gt;, percent_share_of_intended_air_yards &lt;dbl&gt;,
+#   receptions &lt;int&gt;, targets &lt;int&gt;, catch_percentage &lt;dbl&gt;, yards &lt;int&gt;,
+#   rec_touchdowns &lt;int&gt;, avg_yac &lt;dbl&gt;, avg_expected_yac &lt;dbl&gt;,
+#   avg_yac_above_expectation &lt;dbl&gt;, player_gsis_id &lt;chr&gt;,
+#   player_first_name &lt;chr&gt;, player_last_name &lt;chr&gt;, …</code></pre>
+</div>
+</div>
+<p>You can check your column names by doing this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(raw_ngs_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "season"                              "season_type"                        
+ [3] "week"                                "player_display_name"                
+ [5] "player_position"                     "team_abbr"                          
+ [7] "avg_cushion"                         "avg_separation"                     
+ [9] "avg_intended_air_yards"              "percent_share_of_intended_air_yards"
+[11] "receptions"                          "targets"                            
+[13] "catch_percentage"                    "yards"                              
+[15] "rec_touchdowns"                      "avg_yac"                            
+[17] "avg_expected_yac"                    "avg_yac_above_expectation"          
+[19] "player_gsis_id"                      "player_first_name"                  
+[21] "player_last_name"                    "player_jersey_number"               
+[23] "player_short_name"                  </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="filtering-and-aggregating-data" class="level2">
+<h2 class="anchored" data-anchor-id="filtering-and-aggregating-data">Filtering and Aggregating Data</h2>
+<p>Once you have the data, you’ll need to check if it’s already aggregated by the unit of measurement you want. In this case, it’s done on a weekly bases, so each row is a week.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+NGS data is a very rare case of 2 units of aggregation, seasonal and weekly in the same dataset. It’s hard to stress how unusual this is and I only know this because I’ve read the data dictionary. Seasonal aggregation is indicated by week 0, so I’m removing it.
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>clean_ngs_data <span class="ot">&lt;-</span> <span class="fu">filter</span>(raw_ngs_data, week <span class="sc">!=</span> <span class="dv">0</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">n_distinct</span>(clean_ngs_data<span class="sc">$</span>week) <span class="co"># how many distinct weeks are in the data?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 19</code></pre>
+</div>
+</div>
+<p>Once the data is clean, you can aggregate it by each player.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Take the data and forward it using the pipe</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>agg_data <span class="ot">&lt;-</span> clean_ngs_data <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Take the data forwarded and group by the name</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(player_display_name) <span class="sc">%&gt;%</span>   </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># take the grouped data and take the average of the `avg_separation` column</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># you can add other summary stats here too like `avg_cushion`</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">avg_separation =</span> <span class="fu">median</span>(avg_separation),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">n =</span> <span class="fu">n</span>(), <span class="co"># This just counts the number of observations (weeks) per group (player)</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">avg_cushion =</span> <span class="fu">median</span>(avg_cushion)) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ungroup the data</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>agg_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 205 × 4
+   player_display_name avg_separation     n avg_cushion
+   &lt;chr&gt;                        &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt;
+ 1 A.J. Brown                    2.36    15        6.58
+ 2 Adam Thielen                  2.90    14        6.55
+ 3 Adam Trautman                 4.41     2        4.99
+ 4 Alec Pierce                   2.34     7        6.22
+ 5 Alex Erickson                 2.76     3        7.36
+ 6 Allen Lazard                  1.60     5        6.46
+ 7 Allen Robinson                2.57     2        6.63
+ 8 Amari Cooper                  2.26    16        5.54
+ 9 Amon-Ra St. Brown             3.29    16        6.87
+10 Andrei Iosivas                2.81     2        6.46
+# ℹ 195 more rows</code></pre>
+</div>
+</div>
+<p>Once you have this aggregated data you can sort using the <code>arrange</code> function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># take the data and pipe it to the arrange function</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>agg_data <span class="ot">&lt;-</span> agg_data <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># pass the column to the arrange function</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># use the `-` to make it descending (highest number first)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>avg_separation)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>agg_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 205 × 4
+   player_display_name avg_separation     n avg_cushion
+   &lt;chr&gt;                        &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt;
+ 1 Lynn Bowden                   7.08     1        7.89
+ 2 Davis Allen                   5.44     1        2.64
+ 3 Daniel Bellinger              5.20     1        6.31
+ 4 Johnny Mundt                  5.10     2        6.17
+ 5 John Bates                    5.04     2        5.89
+ 6 Brevin Jordan                 5.02     1        6.10
+ 7 Rondale Moore                 4.86     5        8.00
+ 8 Austin Trammell               4.82     1        5.18
+ 9 Jauan Jennings                4.82     1        5.89
+10 Isaiah Likely                 4.81     3        7.54
+# ℹ 195 more rows</code></pre>
+</div>
+</div>
+<p>As you can see, there are some very high average separation numbers for some random players. This is because there are only a few weeks of logged data for the player. This is why I put the <code>n</code> column in <code>summarize()</code>. This is a very common problem and it’s reasonable to set some limit like 10 games or so.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Take the agg data and pipe it to filter</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>filtered_agg_data <span class="ot">&lt;-</span> agg_data <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">10</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>filtered_agg_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 54 × 4
+   player_display_name avg_separation     n avg_cushion
+   &lt;chr&gt;                        &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt;
+ 1 Rashee Rice                   4.25    14        6.04
+ 2 Dalton Kincaid                3.90    11        6.42
+ 3 Cole Kmet                     3.90    11        6.86
+ 4 Jerry Jeudy                   3.81    13        7.08
+ 5 Travis Kelce                  3.81    14        6.70
+ 6 Elijah Moore                  3.70    12        7.34
+ 7 Jaxon Smith-Njigba            3.67    12        6.97
+ 8 Zay Flowers                   3.54    11        7.94
+ 9 Jaylen Waddle                 3.47    14        6.81
+10 Trey McBride                  3.38    12        4.84
+# ℹ 44 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="visualizing-results" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-results">Visualizing Results</h2>
+<p>Once you have your data, you can actually do something with it by visualizing the results. This is made very easy by the <code>gt</code> package, which builds tables from data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>filtered_agg_data <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># slice to the top 15 players only for ease of use</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">15</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># pipe the data to the gt() function</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># take the table and hide some columns you don't really care about</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_hide</span>(<span class="at">columns =</span> <span class="fu">c</span>(n, avg_cushion)) <span class="sc">%&gt;%</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># format the average separation to remove some decimals</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> avg_separation, <span class="at">decimals =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add a little title</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Top Separators this Season"</span>, </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">subtitle =</span> <span class="st">"The top 15 players by average separation."</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add a little color</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_hulk_col_numeric</span>(<span class="at">columns =</span> avg_separation) <span class="sc">%&gt;%</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># theme our table like pff does</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_theme_pff</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div id="bebpmuyqge" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#bebpmuyqge table {
+  font-family: Roboto, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bebpmuyqge thead, #bebpmuyqge tbody, #bebpmuyqge tfoot, #bebpmuyqge tr, #bebpmuyqge td, #bebpmuyqge th {
+  border-style: none;
+}
+
+#bebpmuyqge p {
+  margin: 0;
+  padding: 0;
+}
+
+#bebpmuyqge .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 12px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: rgba(255, 255, 255, 0);
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#bebpmuyqge .gt_title {
+  color: #333333;
+  font-size: 30px;
+  font-weight: bold;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#bebpmuyqge .gt_subtitle {
+  color: #333333;
+  font-size: 16px;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#bebpmuyqge .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: rgba(255, 255, 255, 0);
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgba(255, 255, 255, 0);
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 6px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#bebpmuyqge .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#bebpmuyqge .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#bebpmuyqge .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#bebpmuyqge .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgba(255, 255, 255, 0);
+  vertical-align: bottom;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#bebpmuyqge .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#bebpmuyqge .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#bebpmuyqge .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#bebpmuyqge .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#bebpmuyqge .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#bebpmuyqge .gt_row {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: rgba(255, 255, 255, 0);
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#bebpmuyqge .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bebpmuyqge .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#bebpmuyqge .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#bebpmuyqge .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#bebpmuyqge .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bebpmuyqge .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#bebpmuyqge .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bebpmuyqge .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_striped {
+  background-color: #F5F5F5;
+}
+
+#bebpmuyqge .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bebpmuyqge .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bebpmuyqge .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bebpmuyqge .gt_left {
+  text-align: left;
+}
+
+#bebpmuyqge .gt_center {
+  text-align: center;
+}
+
+#bebpmuyqge .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#bebpmuyqge .gt_font_normal {
+  font-weight: normal;
+}
+
+#bebpmuyqge .gt_font_bold {
+  font-weight: bold;
+}
+
+#bebpmuyqge .gt_font_italic {
+  font-style: italic;
+}
+
+#bebpmuyqge .gt_super {
+  font-size: 65%;
+}
+
+#bebpmuyqge .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#bebpmuyqge .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#bebpmuyqge .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#bebpmuyqge .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#bebpmuyqge .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#bebpmuyqge .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#bebpmuyqge .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="2" class="gt_heading gt_title gt_font_normal" style="">Top Separators this Season</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="">The top 15 players by average separation.</td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="background-color: #585D63; color: #FFFFFF; font-size: 10px; font-weight: bold; border-bottom-width: 2.5px; border-bottom-style: solid; border-bottom-color: #585d63;" scope="col" id="player_display_name">player_display_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="background-color: #585D63; color: #FFFFFF; font-size: 10px; font-weight: bold; border-bottom-width: 2.5px; border-bottom-style: solid; border-bottom-color: #585d63;" scope="col" id="avg_separation">avg_separation</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="player_display_name" class="gt_row gt_left">Rashee Rice</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #1B7837; color: #FFFFFF;">4.25</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left gt_striped">Dalton Kincaid</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #D0EBCA; color: #000000;">3.90</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left">Cole Kmet</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #D3EDCD; color: #000000;">3.90</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left gt_striped">Jerry Jeudy</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #E5F3E1; color: #000000;">3.81</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left">Travis Kelce</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #E6F3E3; color: #000000;">3.81</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left gt_striped">Elijah Moore</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #F6F6F6; color: #000000;">3.70</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left">Jaxon Smith-Njigba</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #F4F0F4; color: #000000;">3.67</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left gt_striped">Zay Flowers</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #E9D7E9; color: #000000;">3.54</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left">Jaylen Waddle</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #D8C1DE; color: #000000;">3.47</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left gt_striped">Trey McBride</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #BC9ECC; color: #000000;">3.38</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left">Tyler Conklin</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #A77EB9; color: #FFFFFF;">3.31</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left gt_striped">Evan Engram</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #A57CB8; color: #FFFFFF;">3.31</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left">Jayden Reed</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #A57BB7; color: #FFFFFF;">3.31</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left gt_striped">Amon-Ra St. Brown</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #A174B2; color: #FFFFFF;">3.29</td></tr>
+    <tr><td headers="player_display_name" class="gt_row gt_left">Tyreek Hill</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #762A83; color: #FFFFFF;">3.16</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="deeper-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="deeper-analysis">Deeper Analysis</h2>
+<p>Many times a single statistic is misleading. Separation is heavily influenced by cushion, since the higher the cushion, the more a player may be able to separation, since they can close space with more freedom. To check this interaction, it’s useful to plot the two variables against each other.</p>
+<p>This part is a little more advanced but it’s an integral part to digging into stats past the initial value. Later we can weight and actually account for any interaction ourselves, by creating a new stat.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+You may notice the use of the `+` instead of the `%&gt;%` pipe. This is because ggplot functions we use require the `+`. This is the only package that’s like this because it was written before the traditional pipe.
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># take the data and pipe it to ggplot, which is a plotting function</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>filtered_agg_data  <span class="sc">%&gt;%</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># avg_cushion as x, separation as y and the name as the label</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> avg_cushion,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> avg_separation)) <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># point plot</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># draw a little line</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">formula =</span> <span class="st">'y ~ x'</span>, </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">se =</span> F) <span class="sc">+</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">label =</span> player_display_name), </span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>                           <span class="at">max.overlaps =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add some theming and titles</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_fivethirtyeight</span>() <span class="sc">+</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Expected Separation by Cushion"</span>, </span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Using the cushion given, we can predict some portion of the separation. In math terms, cushion is responsible for some significant variance in the separation."</span>) <span class="sc">+</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># don't worry about this line</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_text</span>(),</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y =</span> <span class="fu">element_text</span>()) <span class="sc">+</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add your axis labels</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Cushion Given"</span>) <span class="sc">+</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Separation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: ggrepel: 6 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Simple-Stats_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>You can measure this relationship mathematically by taking the correlation. The result is .41, which means 41% of the average separation is <em>likely</em> (big assumption) relating to the cushion in one way or another, called variance. This number is high, especially for two essentially independent stats.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(<span class="at">x =</span> filtered_agg_data<span class="sc">$</span>avg_separation, <span class="at">y =</span> filtered_agg_data<span class="sc">$</span>avg_cushion)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3226217</code></pre>
+</div>
+</div>
+</section>
+<section id="machine-learning" class="level2">
+<h2 class="anchored" data-anchor-id="machine-learning">Machine Learning!</h2>
+<p>So we know the statistic of separation is helpful but still influenced a lot by some other factor like cushion. The question is what to do about it. There are a ton of approaches you can take here but I tend to like the machine learning approach.</p>
+<p>This approach is defined by defining some simple model to predict the separation using the cushion. Once we have this predicted value, we calculated the separation <strong>over</strong> this prediction. So, for players like Drake London who have receive a good deal of cushion but low separation, we would say he has separation <em>under</em> expectation. Logically, a receiver who generates separation above expected will be the better one, since they’re (on average) being covered more closely.</p>
+<section id="the-code" class="level3">
+<h3 class="anchored" data-anchor-id="the-code">The Code</h3>
+<p>This part is obviously more advanced but I’ll try to do it in the most simplistic way, eventually it’ll be second nature.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define the model</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># prediction separation using cushion</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">formula =</span> avg_separation <span class="sc">~</span> avg_cushion, <span class="at">data =</span> filtered_agg_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Use the model to predict the <code>x_separation</code> column, or predicted separation. Don’t worry about much of this code, since it’s a little involved. Just know it’s appending the predicted separation to the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># augment our data</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>aug_data <span class="ot">&lt;-</span> <span class="fu">predict</span>(<span class="at">object =</span> mod, <span class="at">new_data =</span> filtered_agg_data) <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble_col</span>(<span class="st">"x_separation"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(filtered_agg_data)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>aug_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 54 × 5
+   x_separation player_display_name avg_separation     n avg_cushion
+          &lt;dbl&gt; &lt;chr&gt;                        &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt;
+ 1         2.88 Rashee Rice                   4.25    14        6.04
+ 2         2.97 Dalton Kincaid                3.90    11        6.42
+ 3         3.07 Cole Kmet                     3.90    11        6.86
+ 4         3.12 Jerry Jeudy                   3.81    13        7.08
+ 5         3.03 Travis Kelce                  3.81    14        6.70
+ 6         3.17 Elijah Moore                  3.70    12        7.34
+ 7         3.09 Jaxon Smith-Njigba            3.67    12        6.97
+ 8         3.31 Zay Flowers                   3.54    11        7.94
+ 9         3.05 Jaylen Waddle                 3.47    14        6.81
+10         2.62 Trey McBride                  3.38    12        4.84
+# ℹ 44 more rows</code></pre>
+</div>
+</div>
+<p>Now we’ll compute the new column that measures the separation over the expected.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>aug_data <span class="ot">&lt;-</span> aug_data <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># use mutate to create the new column</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">separation_oe =</span> avg_separation <span class="sc">-</span> x_separation)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="visualizing-results-1" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-results-1">Visualizing Results</h2>
+<p>Now we can create a new table, just like the old one that measures this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>aug_data <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># slice to the top 15 players only for ease of use</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> separation_oe, <span class="at">n =</span> <span class="dv">15</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># pipe the data to the gt() function</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># take the table and hide some columns you don't really care about</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_hide</span>(<span class="at">columns =</span> <span class="fu">c</span>(n, avg_cushion)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># format the average separation to remove some decimals</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(<span class="at">columns =</span> avg_separation, <span class="at">decimals =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add a little title</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Top Separators over Expected"</span>,</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">subtitle =</span> <span class="st">"Separation adjusting for variance due to cushion."</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add a little color</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_hulk_col_numeric</span>(<span class="at">columns =</span> <span class="fu">c</span>(avg_separation, separation_oe)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># theme our table like pff does</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt_theme_pff</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div id="xvmfugfxuj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#xvmfugfxuj table {
+  font-family: Roboto, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#xvmfugfxuj thead, #xvmfugfxuj tbody, #xvmfugfxuj tfoot, #xvmfugfxuj tr, #xvmfugfxuj td, #xvmfugfxuj th {
+  border-style: none;
+}
+
+#xvmfugfxuj p {
+  margin: 0;
+  padding: 0;
+}
+
+#xvmfugfxuj .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 12px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: rgba(255, 255, 255, 0);
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#xvmfugfxuj .gt_title {
+  color: #333333;
+  font-size: 30px;
+  font-weight: bold;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#xvmfugfxuj .gt_subtitle {
+  color: #333333;
+  font-size: 16px;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#xvmfugfxuj .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: rgba(255, 255, 255, 0);
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgba(255, 255, 255, 0);
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 6px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#xvmfugfxuj .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#xvmfugfxuj .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#xvmfugfxuj .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#xvmfugfxuj .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 3px;
+  border-bottom-color: rgba(255, 255, 255, 0);
+  vertical-align: bottom;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#xvmfugfxuj .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#xvmfugfxuj .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#xvmfugfxuj .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#xvmfugfxuj .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#xvmfugfxuj .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#xvmfugfxuj .gt_row {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: rgba(255, 255, 255, 0);
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#xvmfugfxuj .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xvmfugfxuj .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#xvmfugfxuj .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#xvmfugfxuj .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#xvmfugfxuj .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xvmfugfxuj .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#xvmfugfxuj .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xvmfugfxuj .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_striped {
+  background-color: #F5F5F5;
+}
+
+#xvmfugfxuj .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xvmfugfxuj .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#xvmfugfxuj .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xvmfugfxuj .gt_left {
+  text-align: left;
+}
+
+#xvmfugfxuj .gt_center {
+  text-align: center;
+}
+
+#xvmfugfxuj .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#xvmfugfxuj .gt_font_normal {
+  font-weight: normal;
+}
+
+#xvmfugfxuj .gt_font_bold {
+  font-weight: bold;
+}
+
+#xvmfugfxuj .gt_font_italic {
+  font-style: italic;
+}
+
+#xvmfugfxuj .gt_super {
+  font-size: 65%;
+}
+
+#xvmfugfxuj .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#xvmfugfxuj .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#xvmfugfxuj .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#xvmfugfxuj .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#xvmfugfxuj .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#xvmfugfxuj .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#xvmfugfxuj .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" style="">Top Separators over Expected</td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="">Separation adjusting for variance due to cushion.</td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="background-color: #585D63; color: #FFFFFF; font-size: 10px; font-weight: bold; border-bottom-width: 2.5px; border-bottom-style: solid; border-bottom-color: #585d63;" scope="col" id="x_separation">x_separation</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="background-color: #585D63; color: #FFFFFF; font-size: 10px; font-weight: bold; border-bottom-width: 2.5px; border-bottom-style: solid; border-bottom-color: #585d63;" scope="col" id="player_display_name">player_display_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="background-color: #585D63; color: #FFFFFF; font-size: 10px; font-weight: bold; border-bottom-width: 2.5px; border-bottom-style: solid; border-bottom-color: #585d63;" scope="col" id="avg_separation">avg_separation</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="background-color: #585D63; color: #FFFFFF; font-size: 10px; font-weight: bold; border-bottom-width: 2.5px; border-bottom-style: solid; border-bottom-color: #585d63;" scope="col" id="separation_oe">separation_oe</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="x_separation" class="gt_row gt_right">2.882475</td>
+<td headers="player_display_name" class="gt_row gt_left">Rashee Rice</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #1B7837; color: #FFFFFF;">4.25</td>
+<td headers="separation_oe" class="gt_row gt_right" style="background-color: #1B7837; color: #FFFFFF;">1.3629368</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right gt_striped">2.969106</td>
+<td headers="player_display_name" class="gt_row gt_left gt_striped">Dalton Kincaid</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #BEE1B8; color: #000000;">3.90</td>
+<td headers="separation_oe" class="gt_row gt_right gt_striped" style="background-color: #E9F4E6; color: #000000;">0.9321641</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right">3.066787</td>
+<td headers="player_display_name" class="gt_row gt_left">Cole Kmet</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #C0E3BA; color: #000000;">3.90</td>
+<td headers="separation_oe" class="gt_row gt_right" style="background-color: #F5F2F5; color: #000000;">0.8289472</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right gt_striped">3.030611</td>
+<td headers="player_display_name" class="gt_row gt_left gt_striped">Travis Kelce</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #DEF1D9; color: #000000;">3.81</td>
+<td headers="separation_oe" class="gt_row gt_right gt_striped" style="background-color: #F0E7F0; color: #000000;">0.7745624</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right">2.615479</td>
+<td headers="player_display_name" class="gt_row gt_left">Trey McBride</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #D9C2DF; color: #000000;">3.38</td>
+<td headers="separation_oe" class="gt_row gt_right" style="background-color: #EFE5F0; color: #000000;">0.7684379</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right gt_striped">3.115070</td>
+<td headers="player_display_name" class="gt_row gt_left gt_striped">Jerry Jeudy</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #DDF1D8; color: #000000;">3.81</td>
+<td headers="separation_oe" class="gt_row gt_right gt_striped" style="background-color: #E8D7E9; color: #000000;">0.6960539</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right">3.091262</td>
+<td headers="player_display_name" class="gt_row gt_left">Jaxon Smith-Njigba</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #F3F6F2; color: #000000;">3.67</td>
+<td headers="separation_oe" class="gt_row gt_right" style="background-color: #C3A6D0; color: #000000;">0.5737810</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right gt_striped">2.592313</td>
+<td headers="player_display_name" class="gt_row gt_left gt_striped">Jake Ferguson</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #9159A0; color: #FFFFFF;">3.12</td>
+<td headers="separation_oe" class="gt_row gt_right gt_striped" style="background-color: #B594C7; color: #FFFFFF;">0.5305629</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right">3.173901</td>
+<td headers="player_display_name" class="gt_row gt_left">Elijah Moore</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #EEF5ED; color: #000000;">3.70</td>
+<td headers="separation_oe" class="gt_row gt_right" style="background-color: #B290C5; color: #FFFFFF;">0.5219775</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right gt_striped">2.874323</td>
+<td headers="player_display_name" class="gt_row gt_left gt_striped">Tyler Conklin</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #C5A9D2; color: #000000;">3.31</td>
+<td headers="separation_oe" class="gt_row gt_right gt_striped" style="background-color: #9662A6; color: #FFFFFF;">0.4385195</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right">3.054344</td>
+<td headers="player_display_name" class="gt_row gt_left">Jaylen Waddle</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #EADBEB; color: #000000;">3.47</td>
+<td headers="separation_oe" class="gt_row gt_right" style="background-color: #90589F; color: #FFFFFF;">0.4202368</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right gt_striped">2.803755</td>
+<td headers="player_display_name" class="gt_row gt_left gt_striped">Tyreek Hill</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #9B6BAC; color: #FFFFFF;">3.16</td>
+<td headers="separation_oe" class="gt_row gt_right gt_striped" style="background-color: #7A3288; color: #FFFFFF;">0.3560286</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right">2.675174</td>
+<td headers="player_display_name" class="gt_row gt_left">David Njoku</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #762A83; color: #FFFFFF;">3.03</td>
+<td headers="separation_oe" class="gt_row gt_right" style="background-color: #793087; color: #FFFFFF;">0.3535431</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right gt_striped">2.961752</td>
+<td headers="player_display_name" class="gt_row gt_left gt_striped">Evan Engram</td>
+<td headers="avg_separation" class="gt_row gt_right gt_striped" style="background-color: #C4A8D1; color: #000000;">3.31</td>
+<td headers="separation_oe" class="gt_row gt_right gt_striped" style="background-color: #772D84; color: #FFFFFF;">0.3474857</td></tr>
+    <tr><td headers="x_separation" class="gt_row gt_right">2.963563</td>
+<td headers="player_display_name" class="gt_row gt_left">Jayden Reed</td>
+<td headers="avg_separation" class="gt_row gt_right" style="background-color: #C4A7D1; color: #000000;">3.31</td>
+<td headers="separation_oe" class="gt_row gt_right" style="background-color: #762A83; color: #FFFFFF;">0.3436747</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>Let’s plot the new adjusted separation by raw separation to see the biggest movement.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># take the data and pipe it to ggplot, which is a plotting function</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>aug_data  <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># avg_cushion as x, separation as y and the name as the label</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x_separation,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> avg_separation)) <span class="sc">+</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># point plot</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># draw a little line</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">formula =</span> <span class="st">'y ~ x'</span>, </span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">se =</span> F) <span class="sc">+</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">label =</span> player_display_name), </span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>                           <span class="at">max.overlaps =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add some theming and titles</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_fivethirtyeight</span>() <span class="sc">+</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># don't worry about this line</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_text</span>(),</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y =</span> <span class="fu">element_text</span>()) <span class="sc">+</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add your axis labels</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Expected Separation"</span>) <span class="sc">+</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Separation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: ggrepel: 5 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Simple-Stats_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="what-next" class="level2">
+<h2 class="anchored" data-anchor-id="what-next">What Next</h2>
+<p>This was a very simple example in walking through how to get the stat, compute and aggregate, visualize then do more in depth analysis by creating a new adjusted stat. There are some obvious issues with this stat and it’s obviously not intended to be the be all end all.</p>
+<ul>
+<li>Only 2023 data - a model needs <strong>much</strong> more data.</li>
+<li>Low quality stat - separation and cushion is pre-aggregated, which makes it a lower quality.</li>
+<li>Biased model - this is a more advanced concept but the model simply has low ability.xs</li>
+<li>Additional features - the model clearly needs more information to make a prediction.</li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
